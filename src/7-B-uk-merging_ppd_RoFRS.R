@@ -6,7 +6,6 @@ library(tidyverse)
 library(here)
 library(data.table)
 library(arrow)
-library(parallel)
 
 #Load datasets ----------
 RoFRS_DF <- read_feather(here("data", "imported", "uk_RoFRS.feather"))

@@ -8,7 +8,6 @@ library(tidyverse)
 library(here)
 library(data.table)
 library(arrow)
-library(parallel)
 
 #Get the paths to all certificates  ----------
 files <- list.files(here("data", "external", "uk_epc"), recursive = TRUE, full.names = TRUE)
