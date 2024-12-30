@@ -15,8 +15,8 @@ center_x <- 651000
 center_y <- 6860000 
 
 #Load Datasets ----------
-UKDATA_DF <- read_feather(here("results_building", "uk_regression_ready.feather"))
-FRDATA_DF <- read_feather(here("results_building", "fr_regression_ready.feather"))
+UKDATA_DF <- read_feather(here("results_building", "uk_regression_ready.feather")) |> setDT()
+FRDATA_DF <- read_feather(here("results_building", "fr_regression_ready.feather")) |> setDT()
 PARIS_SF <- st_read(here("results_building", "fr_paris_dataviz", "idf_departments.gpkg"))
 CADASTER_SF <-st_read(here("results_building", "fr_paris_dataviz", "idf_cadaster_sample.gpkg"))
 FLOOD14_DF <-st_read(here("results_building", "fr_paris_dataviz", "idf_flood14.gpkg"))
@@ -24,8 +24,24 @@ FLOOD12_DF <-st_read(here("results_building", "fr_paris_dataviz", "idf_flood12.g
 FLOOD11_DF <-st_read(here("results_building", "fr_paris_dataviz", "idf_flood11.gpkg"))
 
 #Descriptive Statistics ----------
+DESC_DF <- FRDATA_DF[, "country" := "France"] |> 
+  select(-floodable_riverOnly) |>
+  rbind(UKDATA_DF[, "country" := "United Kingdom"]) |>
+  group_by(country) |>
+  summarise(
+    n_observations = length(price),
+    prop_floodable = sum(floodable)/n_observations,
+    prop_floodableH = sum(floodable_highOnly)/n_observations,
+    median_price = median(price),
+    median_floor_area = median(floor_area),
+    mean_rooms = mean(n_rooms)
+  ) |>
+  mutate(
+    median_price_eur = if_else(country=="United Kingdom", median_price*.877, median_price),
+  ) |>
+  select(-median_price)
 
-
+fwrite(DESC_DF, here("results_analysis", "descriptive_statistics.csv"))
 
 #DataViz ----------
 paris_plot <- ggplot(PARIS_SF)+
