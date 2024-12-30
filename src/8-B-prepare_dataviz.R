@@ -5,7 +5,6 @@
 library(tidyverse)
 library(here)
 library(data.table)
-library(arrow)
 library(sf)
 
 #Set Environmental Variables -------

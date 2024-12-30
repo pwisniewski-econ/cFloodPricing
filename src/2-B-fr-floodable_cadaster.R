@@ -95,4 +95,4 @@ CADASTER_DT <- setDT(CADASTER_DF)[, "geometry" := NULL]
 
 attributes(CADASTER_DT)$sf_column <- NULL
 
-arrow::write_feather(CADASTER_DT,  here("data", "interim", "fr_cadaster2020.feather"), compression = "zstd")
+arrow::write_feather(as.data.frame(CADASTER_DT),  here("data", "interim", "fr_cadaster2020.feather"), compression = "zstd")

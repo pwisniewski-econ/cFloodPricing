@@ -11,7 +11,8 @@ library(arrow)
 # Load cadaster/flooding data ----------
 CADASTER_DT <- arrow::open_dataset(here("data", "interim", "fr_cadaster2020.feather"), format="arrow") |>
   select(commune, prefixe, section, numero_cad = numero, starts_with("floodable")) |>
-  collect()
+  collect() |>
+  setDT()
 
 # Load DVF data ----------
 DVF2019 <- arrow::open_dataset(here("data", "imported", "fr_dvf2019.feather"), format="arrow") |>
@@ -23,7 +24,8 @@ DVF2019 <- arrow::open_dataset(here("data", "imported", "fr_dvf2019.feather"), f
   collect() |>
   mutate(
     commune = paste0(code_departement, str_pad(as.character(code_commune), 3, "left", "0"))
-  )
+  ) |>
+  setDT()
 
 # Filtering and joining ----------
 REG_DF <- CADASTER_DT[
@@ -45,10 +47,12 @@ REG_DF <- REG_DF[
 REG_DF[, "floodable" := fifelse(floodable0102==T|floodable0302==T, T, F)]
 REG_DF[, "floodable_highOnly" := fifelse(floodable0101==T|floodable0301==T, T, F)]
 REG_DF[, "floodable_riverOnly" := floodable0102]
+REG_DF[, "type_local" := fifelse(type_local=="Maison", "House", "Flat")]
 
-REG_DF <- REG_DF |>
+
+REG_DF <- REG_DF |> 
   select(price = valeur_fonciere, floor_area = surface_reelle_bati, n_rooms = nombre_pieces_principales,
-         property_type = type_local, town = commune,  floodable, floodable_highOnly, floodable_riverOnly) 
+         property_type = type_local, town = commune,  floodable, floodable_highOnly, floodable_riverOnly)
 
 # Export to Arrow ----------
-write_feather(REG_DF, here("results_building", "fr_regression_ready.feather"), compression = "zstd")
+write_feather(as.data.frame(REG_DF), here("results_building", "fr_regression_ready.feather"), compression = "zstd")

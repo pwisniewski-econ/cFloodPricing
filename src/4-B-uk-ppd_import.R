@@ -38,7 +38,7 @@ PRICE_PAID_DF <- PPID_UPRN_DF[PRICE_PAID_DF, on = .(transactionid)]
 
 #Export to Arrow  ----------
 write_feather(
-  PRICE_PAID_DF, 
+  as.data.frame(PRICE_PAID_DF), 
   here("data", "imported", "uk_pricepaid2019.feather"), 
   compression = "zstd"
 )

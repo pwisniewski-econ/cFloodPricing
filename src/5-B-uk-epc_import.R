@@ -39,4 +39,4 @@ stopCluster(cl)
 #Rbind and export to Arrow  ----------
 EPC_DF <- EPC_DF |> rbindlist()
 
-write_feather(EPC_DF, here("data", "interim", "uk_epc_certificates.feather"), compression = "zstd")
+write_feather(as.data.frame(EPC_DF), here("data", "interim", "uk_epc_certificates.feather"), compression = "zstd")

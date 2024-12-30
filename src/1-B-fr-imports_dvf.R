@@ -15,4 +15,4 @@ DVF2019 <- DVF2019[, 1:7 := NULL][, "year" := 2019]
 names(DVF2019) <- names(DVF2019) |> tolower() |> str_replace_all(" ", "_")
 
 # Export to Arrow IPC ----------
-arrow::write_feather(DVF2019, here("data","imported","fr_dvf2019.feather"), compression = "zstd")
+arrow::write_feather(as.data.frame(DVF2019), here("data","imported","fr_dvf2019.feather"), compression = "zstd")

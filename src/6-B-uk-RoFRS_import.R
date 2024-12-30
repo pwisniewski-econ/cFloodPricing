@@ -20,4 +20,4 @@ RoFRS_DF <- RoFRS_DF |>
   select(uprn, floodable, floodable_highOnly)
 
 #Export to Arrow ----------
-write_feather(RoFRS_DF, here("data", "imported", "uk_RoFRS.feather"), compression = "zstd")
+write_feather(as.data.frame(RoFRS_DF), here("data", "imported", "uk_RoFRS.feather"), compression = "zstd")

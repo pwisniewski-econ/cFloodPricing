@@ -8,10 +8,10 @@ library(data.table)
 library(arrow)
 
 #Load datasets ----------
-RoFRS_DF <- read_feather(here("data", "imported", "uk_RoFRS.feather"))
-PRICE_PAID_DF <- read_feather(here("data", "imported", "uk_pricepaid2019.feather")) 
-EPC_DF <- read_feather(here("data", "interim", "uk_epc_certificates.feather")) 
-EPC_DF <- EPC_DF[order(-lodgement_date), .SD[1], by=.(uprn)] 
+RoFRS_DF <- read_feather(here("data", "imported", "uk_RoFRS.feather")) |> setDT()
+PRICE_PAID_DF <- read_feather(here("data", "imported", "uk_pricepaid2019.feather")) |> setDT()
+EPC_DF <- read_feather(here("data", "interim", "uk_epc_certificates.feather")) |> setDT()
+EPC_DF <- EPC_DF[order(-lodgement_date), .SD[1], by=.(uprn)]
 #Only keep the most up-to-date certificate for each house
 
 #Merge and filter fo regressions ----------
@@ -29,4 +29,4 @@ PP_flood <- PP_flood[ppd_cat=="A"] |>
   remove_missing() #We loose arround 20% of our data, mostly due to issues with uprn matching
 
 #Export to Arrow ----------
-write_feather(PP_flood, here("results_building", "uk_regression_ready.feather"), compression = "zstd")
+write_feather(as.data.frame(PP_flood), here("results_building", "uk_regression_ready.feather"), compression = "zstd")
