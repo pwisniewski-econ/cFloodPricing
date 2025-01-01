@@ -1,0 +1,101 @@
+---
+format: 
+  pdf:
+    number-sections: true
+    block-headings: false
+    fig-format: pdf
+    code-block-border-left: "#5b5b5b"
+    code-block-bg: "#fafafa "
+    highlight-style: pygments
+    documentclass: article
+    toc: false
+    toc-depth: 2
+    toccolor: black
+    citecolor: black
+    urlcolor: gray
+    fontsize: "12pt"
+    include-before-body: 
+      - text: |
+          \input{ressources/pre_text.tex}
+    include-in-header:
+      - text: |
+          \usepackage{graphicx}
+          \usepackage{pdflscape}
+          \usepackage{pdfpages}
+          \newcommand*{\boldone}{\text{\usefont{U}{bbold}{m}{n}1}}
+          \usepackage[a4paper, portrait, footnotesep=0.75cm, margin=2.54cm]{geometry}
+          \usepackage{enumitem}
+          \usepackage{parskip}
+          \usepackage{titling}
+          \linespread{1.5}
+          \usepackage[T1]{fontenc}
+          \usepackage[hidelinks]{hyperref}
+          \hypersetup{linkcolor={black}}
+          \usepackage{amsmath}
+          \usepackage{amsfonts}
+          \usepackage[normalem]{ulem}
+          \usepackage{times}
+          \usepackage{sectsty}
+          \usepackage[backend=biber, url=false, style=authoryear, doi=false, sorting=ydnt]{biblatex}
+          \addbibresource{ressources/cat_risks.bib}
+          \newcommand{\ts}{\textsuperscript}
+    pdf-engine: pdflatex
+---
+ 
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+library(tidyverse)
+library(cowplot)
+library(data.table)
+library(sf)
+library(showtext)
+font_add(family = "Times", regular = "ressources/Times-New-Roman.otf")
+showtext_auto()
+showtext_opts(dpi = 300)
+
+knitr::opts_chunk$set(echo = F, warning = F, error = F, message = F)
+```
+
+\clearpage
+
+# Introduction and Relevant Literature
+
+In the context of catastrophic risk insurance, the role of public intervention is a topic of ongoing debate. A lack of state intervention can lead to certain risks becoming practically uninsurable, rendering portions of a territory uninhabitable. In response, the state may intervene in various ways, including influencing the real estate market, to manage its territory more effectively. Such interventions, however, can distort the relationship between insurance premiums and the actual degree of risk faced by properties, businesses, or individuals. One potential consequence of this decoupling is the artificial inflation of real estate prices, where public guarantees effectively subsidize private rents. This short thesis explores this phenomenon by examining the effects of flood risk on property prices in France and the United Kingdom.
+
+The approach adopted in this thesis relies on traditional hedonic pricing methods, which assume that the price of a good is determined by its underlying characteristics. For a comprehensive survey of methods in real estate pricing, see \cite{kaur_overview_2020} or \cite{herath_hedonic_2010} for hedonic approaches. However, the focus of this work is not on pricing per se, but rather on the comparative analysis of external factors on property values between countries. As such, issues with data comparability across countries requires that a significant portion of the pricing equation will involve unobservable characteristics.
+
+An extensive body of literature examines the effects of flood risk on real estate prices. Early studies often focused on specific events. For example, in the United States, \cite{mckenzie_flood_2010} observed that properties in flood-prone areas with higher elevation in New Orleans saw a price premium of 1.4% per square foot, which increased to 4.6% following Hurricane Katrina. The authors attribute this premium to heightened perceived risk and expected rebuilding costs under stricter National Flood Insurance Program guidelines. Notably, such effects are often temporary.
+
+Some studies, like \cite{belanger_impact_2018}, use proximity to flood-prone water bodies as a proxy for flood risk. Analyzing data from 1995 to 2015, they find significant property discounts post-2003, likely influenced by improved access to information and evolving insurance practices. To control for waterfront property effects, a research report from the Bayes Business School (2023), \cite{skouralis_impact_2023}, uses innovative scoring techniques and a hedonic pricing model to reveal an 8% discount for at-risk properties in England.
+
+In France, the literature is comparatively sparse. For instance, using a difference-in-difference framework \cite{dubos-paillard_effect_2019} find property discounts of 3% to 7% in the Paris region. \cite{tristan_effets_2024}, using datasets similar to those employed in this study, examined the period from 2019 to 2023. They found results consistent with the concept of imperfect memory of flood risk, where property price discounts are more pronounced shortly after flooding events.
+
+The role of insurance mechanisms in influencing these price effects is less studied but appears significant. Recently, \cite{garbarino_effects_2022} highlights that reinsurance mechanisms may mitigate discounts caused by extreme weather events. In France, \cite{dachary-bernard_response_2014} argue that flood risk zoning has a negative impact on property prices, but the CatNat regime may counteract these effects, potentially creating a perverse “bonus” for properties frequently benefiting from the regime.
+
+This thesis takes a novel approach by comparing flood-prone property pricing between France and the UK, using cross-country differences to explore the implications of varying insurance mechanisms. To address this question, I first present the distinct insurance regimes in the two countries. Subsequently, I detail the datasets used for analysis and the methodology for identifying pricing effects based on flood risk boundaries. Finally, I present the results, discuss their implications, and review the limitations of this study along with potential avenues for further research.
+
+\newpage
+
+# Insurance of Catastrophic Risks in France and the UK
+
+## French CatNat 
+
+## United Kingdom FloodRe
+\newpage
+
+# Data, Methodology and Identification
+
+\newpage
+
+# Discussion of Results
+
+\newpage
+
+# Limitations and Avenues for Improvements
+
+\newpage
+
+# Bibliography
+\begingroup
+\let\clearpage\relax
+\printbibliography[heading=none]
+\endgroup

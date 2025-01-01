@@ -1,6 +1,9 @@
 # Keep .gitignore
 !.gitignore
 
+#Ignore pdf report for now
+/*.pdf
+
 # History files
 .Rhistory
 .Rapp.history
