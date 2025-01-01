@@ -48,6 +48,7 @@ library(cowplot)
 library(data.table)
 library(sf)
 library(showtext)
+library(here)
 font_add(family = "Times", regular = "ressources/Times-New-Roman.otf")
 showtext_auto()
 showtext_opts(dpi = 300)
@@ -79,18 +80,143 @@ This thesis takes a novel approach by comparing flood-prone property pricing bet
 
 ## French CatNat 
 
-## United Kingdom FloodRe
+The CatNat regime originated in 1982, mandating the inclusion of natural disaster coverage in all home insurance contracts. Insurers are legally required to apply a uniform CatNat surcharge, which, until 2025, was set at 6% for land motor vehicles and 12% for property damage. These surcharges partially fund the Caisse Centrale de Réassurance (CCR), which acts as a reinsurer for natural catastrophes with the unlimited financial backing of the French State. This state backing was first utilized in 1999. The regime is activated when a natural disaster is officially recognized through a ministerial decree published in the Journal Officiel. Once triggered, insurers are obligated to process natural disaster claims swiftly.\footnote{\scriptsize Chapitre V : L'assurance des risques de catastrophes naturelles (Articles A125-2 à A125-6-5), Code des Assurances.}
+
+With the increasing frequency and severity of natural disasters due to climate change, the sustainability of the CatNat system has come under scrutiny. From January 2020, surcharges were increased to 9% for land vehicles and 20% for property damage.\footnote{\scriptsize  Arrêté du 22 décembre 2023 modifiant le taux de la prime ou cotisation additionnelle relative à la garantie « catastrophe naturelle » aux contrats d’assurance mentionnés à l’article L. 125-2 du code des assurances, publié au Journal officiel le 28 décembre 2023}
+
+Critics argue that the system provides little incentive for risk prevention. Since the CatNat surcharge is uniform, properties in high-risk areas are effectively shielded from higher premiums, reducing the financial motivation to mitigate risks. Furthermore, unlike the UK’s FloodRe, the CatNat system was not designed as a transitional mechanism; there is no planned shift to a free insurance market. As a result, homebuyers in France may place less emphasis on a property’s flood risk compared to their UK counterparts.
+
+## UK FloodRe
+
+FloodRe, a joint initiative between insurers and the UK government, was launched in 2016 to cap domestic flood insurance prices, particularly for properties at high flood risk. As a reinsurance scheme, FloodRe allows insurers to transfer flood risks to the scheme for a fixed price. The system is funded by a levy on all UK home insurers, premiums proportional to a property’s council tax band, and a fixed excess of £250 per claim. The inward reinsurance premiums for 2023/2024 are outlined on the following page:
+
+| Council Tax band    | A   | B   | C   | D   | E   | F   | G   | H   | 
+|---------------------|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| Buildings Policy    | 126 | 126 | 141 | 160 | 190 | 249 | 321 | 880 |
+| Contents Policy     | 55  | 55  | 71  | 78  | 96  | 108 | 151 | 439 |
+| Combined Policy     | 181 | 181 | 212 | 238 | 286 | 357 | 472 | 1,319 |
+
+: FloodRe Re-Insurance Premiums (£) {#tbl-letters}
+
+The proportionality of premiums to council tax bands ensures that lower-income households benefit the most. To qualify for the scheme, properties must meet three main criteria: they must have been built before 2009, be used for residential purposes, and be covered by an insurance contract. The full list of eligibity criterias can be found on the FloodRe [website](https://www.floodre.co.uk/find-an-insurer/eligibility-criteria/).
+
+FloodRe is intended as a transitional scheme, designed to operate for 25 years, allowing homeowners in high-risk areas time to implement flood mitigation measures. Since 2022, FloodRe has also included a \emph{Build Back Better} program to encourage resilience-enhancing repairs after flood damage. 
+
+Although FloodRe is not strictly risk-based, the system incentivizes prevention and shares some of the costs with homeowners. In a competitive insurance market, insurers may choose not to transfer policies to FloodRe if the risk associated with a property decreases, passing savings directly to consumers. Unlike France’s CatNat, FloodRe premiums are only borne by at-risk consumers rather than the entire population. 
+
 \newpage
 
 # Data, Methodology and Identification
+
+All steps described below can be reproduced using the [cFloodPricing](https://github.com/pwisniewski-econ/cFloodsPricing) repository available on my personal [GitHub](https://github.com/pwisniewski-econ). All relevant links to the data are provided there. For simplicity, this analysis focuses on data from 2019 on residential houses and flats.
+\vspace*{-0.15cm}
+
+## UK Data
+
+The preparation of UK data was relatively straightforward, relying on the Price Paid dataset, which contains nearly all real estate transactions in the UK. This dataset reports only the transaction price. To enrich the dataset, I merged it with publicly available Energy Performance Certificate (EPC) data using the Unique Property Reference Number (UPRN). The match rate is high, as sold properties are legally required to have an EPC. The combined dataset is particularly rich, including basic property information such as surface area and detailed energy-related attributes like the heating system and construction year. Flood risk information is sourced from the Environment Agency and can also be merged using the UPRN. While flood risk data does not distinguish between sources (e.g., sea or river flooding), it categorizes risk into four levels: high (3.3% annual likelihood), medium (1%-3.3%), low (0.1%-1%), and very low (<0.1%).
+
+## French Data
+
+For France, I use the Demande de Valeurs Foncières (DVF) dataset, which publicly documents real estate transactions. Alongside transaction prices, the DVF includes basic property attributes such as surface area, number of rooms, property type, and additional land area. However, richer details are available only in the non-public DVF+ dataset, which I could not access. As a result, the limited information in the DVF dataset constrains the level of detail in regressions to maintain the comparability with the UK dataset. Flood risk in France is assessed using GeoRisques maps, based on local evaluations updated every decade. These maps detail various types of risks, such as flooding or submersion, and classify severity into three levels: high (every 10-30 years), medium (every 100-300 years), and low (every 1,000 years). These categories do not perfectly align with those in the UK, so I focus on medium and high risk, which correspond most closely to the UK’s low-medium-high categories.
+
+Unlike the UK dataset, the GeoRisques maps cannot be directly linked to the DVF data. To address this, I utilize the French Cadaster Registry, which provides geocoded parcel data that can be matched with the DVF. Using this approach, I assess the flood risk for each parcel with a precision of 20m.
+
+Below is an example of this matching process for parcels at medium and high probabilities of river flooding:
+
+![Parcels at medium flooding risk, Paris Region, 2% Sampling](results_analysis/floodable_paris.jpg)
+
+In this map of the Paris region, three levels of flood risk are represented, along with a 2% sample of all parcels in the region. A parcel is considered flood-prone if it intersects with the boundary of the medium-risk contour. This figure also illustrates the conceptual framework underlying this analysis. By leveraging the discontinuities at flood area boundaries, we can estimate the effect of being a flood-prone property.
+
+\newpage
+
+## Descriptive Statistics
+
+Below are summary statistics for the two constructed datasets, one for France and one for the United Kingdom. These statistics provide a useful comparison of the real estate markets in the two countries:
+
+```{r, results='asis'}
+#| label: people
+#| tbl-cap: "Descriptive Statistics"
+
+STATS_DF <- read_csv(here("results_analysis", "descriptive_statistics.csv"), show_col_types = FALSE) 
+
+STATS_DF |>
+  mutate(n_observations = n_observations/1e6, median_price_eur = as.integer(median_price_eur)) |>
+  mutate(dplyr::across(where(is.numeric), ~ as.character(round(.x, 3)))) |>
+  select("N° Observations (Milions)" = n_observations, 
+         "Share of Flood-Prone Properties (Medium/High)" = prop_floodable,  
+         "Median Floor Area (m2)" = median_floor_area, 
+         "Mean number of rooms" = mean_rooms, 
+         "Share of Houses" = prop_houses, 
+         "Median Price (eur)" = median_price_eur, country) |>
+  pivot_longer(-country, names_to = "Variable", values_to = "value") |>
+  pivot_wider(names_from = country, values_from = value) |>
+  knitr::kable(align = c("l", "c", "c"))
+```
+
+The dataset for France contains approximately twice as many transactions as the UK dataset. This difference is partly due to the matching processes: in the UK, some transactions were excluded during the UPRN-based merging process, whereas in France, most transactions were retained by using the French Cadaster data.
+
+The proportion of properties located in medium- to high-risk flood areas is comparable in both countries, at around 5%.
+
+UK homes tend to be slightly larger, with a median floor area of 85m² compared to 75m² in France. Additionally, UK homes have an average of 4.69 rooms, whereas French homes average 3.47 rooms. This size difference is largely explained by the higher share of houses in the UK dataset—87% of transactions involve houses, compared to 54% in France. Interestingly, the 87% figure for houses in the UK is higher than the proportion reported in the UK 2021 census. \footnote{\scriptsize "Across England and Wales, 77.9\% (19.3 million) of households lived in a house or bungalow, 21.7\% (5.4 million) lived in a flat [...]" \href{https://www.ons.gov.uk/peoplepopulationandcommunity/housing/bulletins/housingenglandandwales/census2021}{ons.gov.uk}} This discrepancy could be due to flats being more frequently rented than purchased.
+
+\newpage
+
+## Identification Strategy  
+
+As noted earlier, the French DVF dataset is somewhat limited in terms of home characteristics. To maintain comparability with the UK analysis, the pricing model includes only a small set of variables: Floor Area, Number of Rooms, Property Type (House / Flat), Flood-prone (Dummy).
+
+This limited set of variables is too simplistic to realistically predict home prices on its own. To improve the model, we incorporate town-level fixed effects ($\alpha$) and estimate the following regression:
+$$\log(\text{price}) = \alpha + \beta_1 \cdot \text{Area} + \beta_2 \cdot \text{Rooms} + \beta_3 \cdot \text{House} + \beta_4 \cdot \text{Flood} + \varepsilon$$
+The core of the identification strategy relies on the assumption that, within a town and given the observable characteristics, properties at risk of flooding share similar unobservable characteristics with non-flood-prone properties. This approach leverages the concept of a geographic discontinuity, as illustrated in Figure 1.
+
+This assumption is quite strong and may not always hold, as will be evident in the following sections. However, even a weaker version of this hypothesis allows for meaningful insights. Specifically, if properties in flood-prone areas differ in characteristics from other properties within a town, but the effect of those characteristics on price is similar in both France and the UK, then any observed difference in discounts can still be attributed to differences in insurance systems or to the importance prospective homebuyers place on flood risks. This latter aspect is closely tied to insurance systems, as buyers will consider flood risks more carefully if they significantly impact the utility they derive from a property.
+
+We estimate the model in log form, a common practice in the literature, as it facilitates the interpretation of results and captures proportional price effects more effectively.
+
+Models are estimated for different definitions of what constitutes flood-prone: medium/high risk, high risk only, medium/high risk from rivers only.
 
 \newpage
 
 # Discussion of Results
 
+The main regression for medium/high flood risk yields some initially intriguing results:
+
+\input{results_analysis/regression1.tex}
+
+As expected, floor area and the number of rooms have positive effects on property prices. The coefficient for houses appears negative in France, which aligns with expectations: flats are often situated closer to city centers, while houses are more common in urban areas in the UK.
+
+All variables in the model are statistically significant at conventional levels, except for flood-proneness in France. In contrast, flood-proneness in the UK has a significant negative effect on property prices, with properties in moderate to high flood-risk areas experiencing a 3.3% price reduction.
+
+The model shows a generally acceptable fit but appears better suited to the UK real estate market, with an adjusted $R^2$ of 0.38 for France and 0.75 for the UK.
+
+However, this result alone is insufficient to conclude that the French CatNat regime creates private rents through inflated real estate values. It is plausible that the assumption that flood-prone and non-flood-prone properties are comparable is flawed. Consider the regression for high flood risk as a binary variable:
+
+\input{results_analysis/regression2.tex}
+
+Surprisingly, the effect changes direction: properties in high-risk flood zones show higher values than those in non-risk areas. A likely explanation, consistent with challenges in the literature, is the intrinsic higher value of waterfront properties. Views of rivers or seas offer additional utility to homebuyers, which can outweigh the perceived flood risk. To address this, we consider the weaker identification hypothesis: the cross-country effects are similar. While this hypothesis is not directly testable, we observe that high flood-risk properties have a greater premium in France (10%) compared to the UK (3%).
+
+Finally, consider a regression focused solely on France, isolating medium to high flood risk from rivers. These properties are less likely to benefit from the "sea view" premium, offering a clearer test for negative flood risk effects.
+
+Indeed, under these conditions, a statistically significant negative effect on prices is observed (-1.7%). This supports the presence of "sea view" effects. However, this negative effect is approximately half the magnitude of the observed effect in the UK, which includes flood risk from seas.
+
+\input{results_analysis/regression3.tex}
+
+These results strongly suggest a disparity in the pricing of flood risk between the French and UK real estate markets. Flood risk exerts a greater negative impact on property prices in the UK than in France. Given the substantial differences in insurance mechanisms, it is reasonable to infer that the increased solidarity in the French system results in higher-than-optimal real estate prices in flood-prone areas.
+
+This has significant economic implications. First, it is inefficient: social costs are higher than necessary as a large portion of the population, which is not at risk, subsidizes the risks of others. Second, it fails to discourage development in flood-prone areas, necessitating additional public intervention through regulations to restrict new developments. Lastly, as the system was not designed as a transitional measure, more than 40 years after its inception and amid climate change, catastrophic risk insurance itself faces sustainability challenges. In this regard, the UK’s FloodRe system, intended to last only 25 years, appears much more sustainable in the long term.
+
 \newpage
 
 # Limitations and Avenues for Improvements
+
+While this research presents convincing evidence that the CatNat regime positively influences property prices in flood-prone areas, alternative explanations cannot be ruled out. Cultural and behavioral factors, such as varying levels of risk aversion across countries, may play a role. Additionally, what I have described as the "sea view" effect might differ across borders in ways that could complicate the interpretability of the results. Access to more detailed and private datasets would allow for the development of more sophisticated house pricing models. Such models could better control for the observed "sea view" effects, enhancing robustness of the identification strategy.
+
+More critically, there is a non-negligible risk of selection bias. The dataset only includes properties that were sold, excluding those in such precarious conditions that they found no buyers, properties that, theoretically, should be valued at zero. 
+
+Furthermore, in the case of the UK, I did not account for eligibility criteria, such as construction dates, when analyzing properties. While properties ineligible for FloodRe are proportionally rare, their inclusion may lead to a slight overestimation of the computed coefficients. This limitation also opens an interesting avenue for further study. The temporal discontinuity in FloodRe eligibility (properties built before and after 2009) presents an opportunity to examine price differences in flood-prone areas, potentially yielding insights into FloodRe's effects. 
+
+Lastly, the external validity of these findings remains uncertain without additional international comparisons and a more extended time dimension. As such, an avenue for improving this work would be to expand the analysis to include other countries and adopt a panel data model over a longer time frame. For instance, examining the effects of properties transitioning from non-flood-prone to flood-prone categories could provide a robust basis for identification. While this is beyond the scope of this \emph{short} thesis, it represents a clear direction for future research.
+
 
 \newpage
 

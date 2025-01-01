@@ -36,14 +36,16 @@ exp_reg <- function(mod_ls, filename, notes){
   sink(here("results_analysis", filename))
   stargazer(
     mod_ls, 
-    type = "text", model.numbers=FALSE, digits = 4,
-    column.labels = c("France", "United Kingdom"),
+    type = "latex", model.numbers=FALSE, digits = 4,
+    title = paste0(notes, "\\vspace*{-0.2cm}"),
+    column.labels = c("France", "United Kingdom"), font.size = "small",
     covariate.labels = c("Floor Area (m2)", "Number of Rooms", "House", "Floodable"),
-    notes = notes
+    single.row = TRUE, no.space = TRUE, dep.var.caption = "log(price)", 
+    dep.var.labels.include = FALSE
   )
   sink()
 }
-  
-exp_reg(list(fr1, uk1), "regression1.txt", notes = c("High/Moderate Flooding Risk"))
-exp_reg(list(fr2, uk2), "regression2.txt", notes = c("High Flooding Risk Only"))
-exp_reg(list(fr3), "regression3.txt", notes = c("High/Moderate Flooding Risk (Rivers Only)"))
+
+exp_reg(list(fr1, uk1), "regression1.tex", notes = c("High/Moderate Flooding Risk"))
+exp_reg(list(fr2, uk2), "regression2.tex", notes = c("High Flooding Risk Only"))
+exp_reg(list(fr3), "regression3.tex", notes = c("High/Moderate Flooding Risk (Rivers Only)"))

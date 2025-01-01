@@ -8,6 +8,10 @@ library(here)
 library(data.table)
 library(arrow)
 library(sf)
+library(showtext)
+font_add(family = "Times", regular = "ressources/Times-New-Roman.otf")
+showtext_auto()
+showtext_opts(dpi = 300)
 
 #Set Environmental Variables -------
 ##The Pantheon Cross... -------
@@ -32,6 +36,7 @@ DESC_DF <- FRDATA_DF[, "country" := "France"] |>
     n_observations = length(price),
     prop_floodable = sum(floodable)/n_observations,
     prop_floodableH = sum(floodable_highOnly)/n_observations,
+    prop_houses = sum(property_type=="House")/n_observations,
     median_price = median(price),
     median_floor_area = median(floor_area),
     mean_rooms = mean(n_rooms)
@@ -65,6 +70,12 @@ paris_plot <- ggplot(PARIS_SF)+
     ylim = c(center_y-15.5e3, center_y+17.5e3)     # Longitude range (East)
   )+
   theme_minimal()+
-  theme(legend.position = "right", panel.grid.major = element_blank())
+  theme(panel.grid.major = element_blank(), 
+        text = element_text(family = "Times", size = 12), 
+        legend.position = "bottom", 
+        legend.title = element_text(size = 12), 
+        legend.box="vertical", 
+        plot.margin = margin(0,7,0,0),
+        legend.margin = margin(0,0,0,0))
 
-ggsave(here("results_analysis", "floodable_paris.jpeg"), paris_plot, width = 11, height=7.5)
+ggsave(here("results_analysis", "floodable_paris.jpg"), paris_plot, width = 8, height=7.5)
